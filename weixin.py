@@ -36,6 +36,26 @@ def catchKeyboardInterrupt(fn):
             logging.debug('[*] 强制退出程序')
     return wrapper
 
+def configLog():
+    # level>=DEBUG: output to file 'app.log'
+    format_str = '%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s - %(message)s'
+    logging.basicConfig(
+        format=format_str,
+        filename='app.log',
+        filemode='w',
+        level=logging.DEBUG)
+    # level>=WARNING: print on terminal
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.WARNING)
+    formatter = logging.Formatter(format_str)
+    ch.setFormatter(formatter)
+    logging.getLogger('').addHandler(ch)
+    # print colored logs if supported
+    if not sys.platform.startswith('win'):
+        import coloredlogs
+        coloredlogs.install(
+            level='WARNING',
+            fmt=format_str)
 
 def _decode_list(data):
     rv = []
@@ -1158,10 +1178,6 @@ if sys.stdout.encoding == 'cp936':
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger(__name__)
-    if not sys.platform.startswith('win'):
-        import coloredlogs
-        coloredlogs.install(level='DEBUG')
-
+    configLog()
     webwx = WebWeixin()
     webwx.start()
